@@ -1,3 +1,4 @@
+import docker
 import telebot
 import requests
 from __init__ import *
@@ -6,6 +7,7 @@ from datetime import datetime
 from dadata.sync import DadataClient
 from requests import exceptions, Response
 
+client = docker.from_env()
 bot = telebot.TeleBot(TOKEN_TELEGRAM)
 logger: getLogger = get_logger(os.path.basename(__file__).replace(".py", "_") + str(datetime.now().date()))
 
@@ -20,13 +22,21 @@ def start_bot(message):
                                                      callback_data='check_yandex')
     button_check_dadata = types.InlineKeyboardButton(text='Получить оставшиеся количество запросов в Dadata',
                                                      callback_data='check_dadata')
+    button_get_logs_docker = types.InlineKeyboardButton(text='Получить логи контейнеров',
+                                                        callback_data='get_logs_docker')
     button_get_chat_id = types.InlineKeyboardButton(text='Получить Chat ID', callback_data='get_chat_id')
     markup.row(button_check_db)
     markup.row(button_check_yandex)
     markup.row(button_check_dadata)
+    markup.row(button_get_logs_docker)
     markup.row(button_get_chat_id)
 
+    markup_reply = types.ReplyKeyboardMarkup(resize_keyboard=True)
+    start_button = types.KeyboardButton('/start')
+    markup_reply.add(start_button)
+
     bot.send_message(message.chat.id, first_mess, parse_mode='html', reply_markup=markup)
+    bot.send_message(message.chat.id, first_mess, parse_mode='html', reply_markup=markup_reply)
 
 
 @bot.message_handler(commands=['check_connect_db'])
@@ -76,7 +86,31 @@ def get_chat_id(message):
     bot.reply_to(message, f'Chat ID этого чата: {chat_id}')
 
 
-# Обработчик для кнопок на клавиатуре
+def get_log_container(message, container_name):
+    logs = client.containers.get(container_name).logs()
+    lines = logs.decode('utf-8').split("\n")
+    last_lines = "\n".join(lines[-50:])
+    bot.reply_to(message, f'Логи контейнера {container_name}:\n{last_lines}')
+
+
+@bot.callback_query_handler(func=lambda call: True)
+def callback_handler(call):
+    if call.data == 'get_logs_docker':
+        markup = types.InlineKeyboardMarkup()
+        for container in DOCKER_CONTAINER:
+            log_container = types.InlineKeyboardButton(container, callback_data=f'get_log_container_{container}')
+            markup.add(log_container)
+        close_menu = types.InlineKeyboardButton('Закрыть меню', callback_data='close')
+        markup.add(close_menu)
+        bot.edit_message_text('Выберите контейнер для получения логов:', call.message.chat.id, call.message.message_id,
+                              reply_markup=markup)
+    elif call.data == 'close':
+        bot.edit_message_text('Меню закрыто', call.message.chat.id, call.message.message_id)
+    elif call.data.startswith('get_log_container'):
+        container_name = call.data[len('get_log_container_'):]
+        get_log_container(call.message, container_name)
+
+
 @bot.callback_query_handler(func=lambda call: True)
 def handle_callback_query(call):
     data_actions: dict = {
