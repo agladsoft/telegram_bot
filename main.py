@@ -31,12 +31,7 @@ def start_bot(message):
     markup.row(button_get_logs_docker)
     markup.row(button_get_chat_id)
 
-    markup_reply = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    start_button = types.KeyboardButton('/start')
-    markup_reply.add(start_button)
-
     bot.send_message(message.chat.id, first_mess, parse_mode='html', reply_markup=markup)
-    bot.send_message(message.chat.id, first_mess, parse_mode='html', reply_markup=markup_reply)
 
 
 @bot.message_handler(commands=['check_connect_db'])
