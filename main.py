@@ -115,4 +115,5 @@ def callback_handler(call):
             data_actions[call.data](call.message)
 
 
-bot.infinity_polling()
+if __name__ == "__main__":
+    bot.infinity_polling()
