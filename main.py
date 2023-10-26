@@ -104,18 +104,15 @@ def callback_handler(call):
     elif call.data.startswith('get_log_container'):
         container_name = call.data[len('get_log_container_'):]
         get_log_container(call.message, container_name)
-
-
-@bot.callback_query_handler(func=lambda call: True)
-def handle_callback_query(call):
-    data_actions: dict = {
-        'check_db': check_connect_db,
-        'check_yandex': check_balance_xml_river,
-        'check_dadata': check_num_requests_dadata,
-        'get_chat_id': get_chat_id
-    }
-    if call.data in data_actions:
-        data_actions[call.data](call.message)
+    else:
+        data_actions = {
+            'check_db': check_connect_db,
+            'check_yandex': check_balance_xml_river,
+            'check_dadata': check_num_requests_dadata,
+            'get_chat_id': get_chat_id
+        }
+        if call.data in data_actions:
+            data_actions[call.data](call.message)
 
 
 bot.infinity_polling()
