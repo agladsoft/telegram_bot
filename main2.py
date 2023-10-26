@@ -29,23 +29,11 @@ def start_bot(message):
 @bot.message_handler(content_types=['text'])
 def bot_message(message):
     if message.text == 'Проверить подключение к базе данных':
-        keyboard = types.InlineKeyboardMarkup()
-        key = types.InlineKeyboardButton(text='Проверить подключение к базе данных', callback_data='check_connect_db')
-        keyboard.add(key)
-        bot.send_message(message.from_user.id, text='Проверить подключение к базе данных', reply_markup=keyboard)
+        check_connect_db(message.from_user.id)
     elif message.text == 'Проверить баланс на Яндекс.Кошельке':
-        keyboard = types.InlineKeyboardMarkup()
-        key = types.InlineKeyboardButton(text='Проверить баланс на Яндекс.Кошельке',
-                                         callback_data='check_balance_xml_river')
-        keyboard.add(key)
-        bot.send_message(message.from_user.id, text='Проверить баланс на Яндекс.Кошельке', reply_markup=keyboard)
+        check_balance_xml_river(message.from_user.id)
     elif message.text == 'Получить оставшиеся количество запросов в Dadata':
-        keyboard = types.InlineKeyboardMarkup()
-        key = types.InlineKeyboardButton(text='Получить оставшиеся количество запросов в Dadata',
-                                         callback_data='check_num_requests_dadata')
-        keyboard.add(key)
-        bot.send_message(message.from_user.id, text='Получить оставшиеся количество запросов в Dadata',
-                         reply_markup=keyboard)
+        check_num_requests_dadata(message.from_user.id)
     elif message.text == 'Получить логи контейнеров':
         keyboard = types.InlineKeyboardMarkup()
         key = types.InlineKeyboardButton(text='Получить логи контейнеров',
@@ -56,13 +44,7 @@ def bot_message(message):
 
 @bot.callback_query_handler(func=lambda call: True)
 def callback_worker(call):
-    if call.data == "check_connect_db":
-        check_connect_db(call.from_user.id)
-    elif call.data == "check_balance_xml_river":
-        check_balance_xml_river(call.from_user.id)
-    elif call.data == "check_num_requests_dadata":
-        check_num_requests_dadata(call.from_user.id)
-    elif call.data == 'get_logs_docker':
+    if call.data == 'get_logs_docker':
         markup = types.InlineKeyboardMarkup()
         for container in DOCKER_CONTAINER:
             log_container = types.InlineKeyboardButton(container, callback_data=f'get_log_container_{container}')
