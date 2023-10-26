@@ -32,7 +32,7 @@ def start_bot(message):
 @bot.message_handler(commands=['check_connect_db'])
 def check_connect_db(message):
     try:
-        response = requests.get(f"http://{IP_ADDRESS_DB}:8123")
+        response = requests.get(f"http://{IP_ADDRESS_DB}:8123", timeout=120)
         response.raise_for_status()
         if "Ok" in response.text:
             bot.reply_to(message, "Подключение к базе стабильно")
@@ -47,7 +47,7 @@ def check_connect_db(message):
 def check_balance_xml_river(message):
     try:
         response: Response = requests.get(f"https://xmlriver.com/api/get_balance/yandex/"
-                                          f"?user={USER_XML_RIVER}&key={KEY_XML_RIVER}")
+                                          f"?user={USER_XML_RIVER}&key={KEY_XML_RIVER}", timeout=120)
         response.raise_for_status()
         bot.reply_to(message, f"Баланс на Яндекс.Кошельке составляет {float(response.text)} рублей")
     except exceptions.RequestException as e:
