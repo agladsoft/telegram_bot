@@ -32,7 +32,7 @@ def start_bot(message):
 @bot.message_handler(commands=['check_connect_db'])
 def check_connect_db(message):
     try:
-        response = requests.get(f"http://{IP_ADDRESS_DB}:8123", timeout=120)
+        response = requests.get(f"http://{IP_ADDRESS_DB}:8123", timeout=30)
         response.raise_for_status()
         if "Ok" in response.text:
             bot.reply_to(message, "Подключение к базе стабильно")
@@ -89,4 +89,4 @@ def handle_callback_query(call):
         data_actions[call.data](call.message)
 
 
-bot.polling()
+bot.infinity_polling()
