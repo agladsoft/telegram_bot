@@ -79,14 +79,14 @@ def get_chat_id(message):
 # Обработчик для кнопок на клавиатуре
 @bot.callback_query_handler(func=lambda call: True)
 def handle_callback_query(call):
-    if call.data == 'check_db':
-        check_connect_db(call.message)
-    elif call.data == 'check_yandex':
-        check_balance_xml_river(call.message)
-    elif call.data == 'check_dadata':
-        check_num_requests_dadata(call.message)
-    elif call.data == 'get_chat_id':
-        get_chat_id(call.message)
+    data_actions: dict = {
+        'check_db': check_connect_db,
+        'check_yandex': check_balance_xml_river,
+        'check_dadata': check_num_requests_dadata,
+        'get_chat_id': get_chat_id
+    }
+    if call.data in data_actions:
+        data_actions[call.data](call.message)
 
 
 bot.polling()
