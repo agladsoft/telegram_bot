@@ -22,13 +22,6 @@ LOG_FTM: str = "[%(asctime)s] %(levelname)s [%(name)s.%(funcName)s:%(lineno)d] %
 DATE_FTM: str = "%d/%B/%Y %H:%M:%S"
 
 
-# docker
-DOCKER_CONTAINER = [
-    "VK_postgres_container",
-    "VK_web_container"
-]
-
-
 def get_my_env_var(var_name: str) -> str:
     try:
         return os.environ[var_name]

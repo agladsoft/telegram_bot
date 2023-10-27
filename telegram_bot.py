@@ -46,7 +46,7 @@ def bot_message(message):
 def callback_worker(call):
     if call.data == 'get_logs_docker':
         markup = types.InlineKeyboardMarkup()
-        for container in DOCKER_CONTAINER:
+        for container in [container.name for container in client.containers.list()]:
             log_container = types.InlineKeyboardButton(container, callback_data=f'get_log_container_{container}')
             markup.add(log_container)
         close_menu = types.InlineKeyboardButton('Закрыть меню', callback_data='close')
