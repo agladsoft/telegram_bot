@@ -1,10 +1,8 @@
 FROM python:3.8
 
-ARG XL_IDP_PATH_DOCKER
+LABEL container_name="telegram_bot"
 
-ENV XL_IDP_PATH_DOCKER=$XL_IDP_PATH_DOCKER
-
-RUN chmod -R 777 $XL_IDP_PATH_DOCKER
+CMD ["echo", "Running Telegram Bot!"]
 
 COPY requirements.txt .
 
