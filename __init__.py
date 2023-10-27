@@ -22,6 +22,14 @@ LOG_FTM: str = "[%(asctime)s] %(levelname)s [%(name)s.%(funcName)s:%(lineno)d] %
 DATE_FTM: str = "%d/%B/%Y %H:%M:%S"
 
 
+BUTTONS_TELEGRAM_BOT: dict = {
+    "Подключение к базе данных": "check_connect_db",
+    "Баланс на Яндекс.Кошельке": "check_balance_xml_river",
+    "Доступное количество запросов в Dadata": "check_num_requests_dadata",
+    "Логи контейнеров": "check_logs_containers",
+}
+
+
 def get_my_env_var(var_name: str) -> str:
     try:
         return os.environ[var_name]
