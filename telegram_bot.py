@@ -3,26 +3,30 @@ import telebot
 import requests
 from __init__ import *
 from telebot import types
+from typing import Optional
 from datetime import datetime
+from docker import DockerClient
+from telebot.types import Message
 from dadata.sync import DadataClient
 from requests import exceptions, Response
 
-client = docker.from_env()
-bot = telebot.TeleBot(TOKEN_TELEGRAM)
+
+client: DockerClient = docker.from_env()
+bot: telebot.TeleBot = telebot.TeleBot(TOKEN_TELEGRAM)
 logger: getLogger = get_logger(os.path.basename(__file__).replace(".py", "_") + str(datetime.now().date()))
 
 
 class TelegramBotManager:
     def __init__(self, message):
-        self.message = message
+        self.message: Message = message
 
-    def check_connect_db(self):
+    def check_connect_db(self) -> None:
         """
-
+        Проверяем подключение к базе.
         :return:
         """
         try:
-            response = requests.get(f"http://{IP_ADDRESS_DB}:8123", timeout=30)
+            response: Response = requests.get(f"http://{IP_ADDRESS_DB}:8123", timeout=30)
             response.raise_for_status()
             if "Ok" in response.text:
                 bot.send_message(self.message.from_user.id, "Подключение к базе стабильно")
@@ -32,9 +36,9 @@ class TelegramBotManager:
             logger.error(f"Во время запроса API произошла ошибка - {e}")
             bot.send_message(self.message.from_user.id, 'Не удалось получить ответ от сервера')
 
-    def check_balance_xml_river(self):
+    def check_balance_xml_river(self) -> None:
         """
-
+        Проверяем баланс в Яндекс Кошельке.
         :return:
         """
         try:
@@ -47,9 +51,9 @@ class TelegramBotManager:
             logger.error(f"Во время запроса API произошла ошибка - {e}")
             bot.send_message(self.message.from_user.id, 'Не удалось получить ответ от Яндекс.Кошелька')
 
-    def check_num_requests_dadata(self):
+    def check_num_requests_dadata(self) -> None:
         """
-
+        Проверяем оставшиеся количество запросов в Dadata.
         :return:
         """
         token_and_secrets: list = list(ACCOUNTS_SERVICE_INN.items())
@@ -64,12 +68,12 @@ class TelegramBotManager:
         )
         bot.send_message(self.message.from_user.id, message_response)
 
-    def check_logs_containers(self):
+    def check_logs_containers(self) -> None:
         """
-
+        Проверяем логи всех контейнеров.
         :return:
         """
-        keyboard = callback_worker(types.CallbackQuery(
+        keyboard: types.InlineKeyboardMarkup = callback_worker(types.CallbackQuery(
             id=self.message.from_user.id,
             from_user=self.message.from_user,
             chat_instance=TOKEN_TELEGRAM,
@@ -79,24 +83,26 @@ class TelegramBotManager:
         ))
         bot.send_message(self.message.from_user.id, text='Список контейнеров', reply_markup=keyboard)
 
-    def get_log_container(self, container_name):
+    @staticmethod
+    def get_log_container(message: Message, container_name: str) -> None:
         """
-
-        :param container_name:
+        Получаем логи выбранного в боте контейнера.
+        :param message: Данные о пользователе.
+        :param container_name: Наименование контейнера.
         :return:
         """
-        logs = client.containers.get(container_name).logs()
-        lines = logs.decode('utf-8').split("\n")
-        last_lines = "\n".join(lines[-50:])
-        bot.send_message(self.message, f'Логи контейнера {container_name}:\n{last_lines}')
+        logs: bytes = client.containers.get(container_name).logs()
+        lines: list = logs.decode('utf-8').split("\n")
+        last_lines: str = "\n".join(lines[-50:])
+        bot.send_message(message.chat.id, f'Логи контейнера {container_name}:\n{last_lines}')
 
 
 @bot.message_handler(commands=['start'])
-def start_bot(message):
-    first_mess = f"<b>{message.from_user.first_name} {message.from_user.last_name}</b>, " \
-                 f"привет!\nЗдесь представлены на выбор проверка сервисов."
-    markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
-    buttons = [types.KeyboardButton(text=button_text) for button_text in BUTTONS_TELEGRAM_BOT]
+def start_bot(message: Message) -> None:
+    first_mess: str = f"<b>{message.from_user.first_name} {message.from_user.last_name}</b>, " \
+                      f"привет!\nЗдесь представлены на выбор проверка сервисов."
+    markup: types.ReplyKeyboardMarkup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
+    buttons: list = [types.KeyboardButton(text=button_text) for button_text in BUTTONS_TELEGRAM_BOT]
     for i in range(0, len(buttons), 2):
         if i + 1 < len(buttons):
             markup.add(buttons[i], buttons[i + 1])
@@ -106,27 +112,24 @@ def start_bot(message):
 
 
 @bot.message_handler(content_types=['text'])
-def bot_message(message):
-    telegram_bot_manager = TelegramBotManager(message)
-    if message.text in BUTTONS_TELEGRAM_BOT:
-        method_name = BUTTONS_TELEGRAM_BOT[message.text]
-        method_to_call = getattr(telegram_bot_manager, method_name)
-        method_to_call()
+def bot_message(message: Message) -> None:
+    telegram_bot_manager: TelegramBotManager = TelegramBotManager(message)
+    if method_name := BUTTONS_TELEGRAM_BOT.get(message.text):
+        getattr(telegram_bot_manager, method_name)()
 
 
 @bot.callback_query_handler(func=lambda call: True)
-def callback_worker(call):
+def callback_worker(call: types.CallbackQuery) -> Optional[types.InlineKeyboardMarkup]:
     if call.data == 'get_logs_docker':
-        markup = types.InlineKeyboardMarkup()
+        markup: types.InlineKeyboardMarkup = types.InlineKeyboardMarkup()
         for container in [container.name for container in client.containers.list()]:
-            log_container = types.InlineKeyboardButton(container, callback_data=f'get_log_container_{container}')
-            markup.add(log_container)
+            markup.add(types.InlineKeyboardButton(container, callback_data=f'get_log_container_{container}'))
         markup.add(types.InlineKeyboardButton('Закрыть меню', callback_data='close'))
         return markup
     elif call.data == 'close':
         bot.edit_message_text('Меню закрыто', call.message.chat.id, call.message.message_id)
     elif call.data.startswith('get_log_container'):
-        TelegramBotManager.get_log_container(call.data[len('get_log_container_'):])
+        TelegramBotManager.get_log_container(call.message, call.data[len('get_log_container_'):])
 
 
 if __name__ == "__main__":
