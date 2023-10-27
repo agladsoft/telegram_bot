@@ -14,7 +14,7 @@ WORKDIR /app
 RUN pip install -r requirements.txt
 
 # Копируем файл telegram_bot.py в контейнер
-COPY telegram_bot.py /app/telegram_bot.py
+COPY * /app/
 
 # Запускаем скрипт при запуске контейнера
-CMD ["python", "telegram_bot.py"]
+CMD ["python3", "telegram_bot.py"]
