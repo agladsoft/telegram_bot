@@ -81,6 +81,15 @@ def get_chat_id(message):
     bot.reply_to(message, f'Chat ID этого чата: {chat_id}')
 
 
+@bot.message_handler(commands=['get_logs_docker'])
+def get_logs_docker(message):
+    markup = types.InlineKeyboardMarkup()
+    for container in [container.name for container in client.containers.list()]:
+        log_container = types.InlineKeyboardButton(container, callback_data=f'get_log_container_{container}')
+        markup.add(log_container)
+    bot.send_message(message.chat.id, 'Выберите контейнер для получения логов:', reply_markup=markup)
+
+
 def get_log_container(message, container_name):
     logs = client.containers.get(container_name).logs()
     lines = logs.decode('utf-8').split("\n")
@@ -90,18 +99,7 @@ def get_log_container(message, container_name):
 
 @bot.callback_query_handler(func=lambda call: True)
 def callback_handler(call):
-    if call.data == 'get_logs_docker':
-        markup = types.InlineKeyboardMarkup()
-        for container in DOCKER_CONTAINER:
-            log_container = types.InlineKeyboardButton(container, callback_data=f'get_log_container_{container}')
-            markup.add(log_container)
-        close_menu = types.InlineKeyboardButton('Закрыть меню', callback_data='close')
-        markup.add(close_menu)
-        bot.edit_message_text('Выберите контейнер для получения логов:', call.message.chat.id, call.message.message_id,
-                              reply_markup=markup)
-    elif call.data == 'close':
-        bot.edit_message_text('Меню закрыто', call.message.chat.id, call.message.message_id)
-    elif call.data.startswith('get_log_container'):
+    if call.data.startswith('get_log_container'):
         container_name = call.data[len('get_log_container_'):]
         get_log_container(call.message, container_name)
     else:
@@ -109,6 +107,7 @@ def callback_handler(call):
             'check_db': check_connect_db,
             'check_yandex': check_balance_xml_river,
             'check_dadata': check_num_requests_dadata,
+            'get_logs_docker': get_logs_docker,
             'get_chat_id': get_chat_id
         }
         if call.data in data_actions:
