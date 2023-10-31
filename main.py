@@ -4,27 +4,33 @@ import requests
 from __init__ import *
 from telebot import types
 from datetime import datetime
+from docker import DockerClient
+from telebot.types import Message
 from dadata.sync import DadataClient
 from requests import exceptions, Response
 
-client = docker.from_env()
-bot = telebot.TeleBot(TOKEN_TELEGRAM)
+
+client: DockerClient = docker.from_env()
+bot: telebot.TeleBot = telebot.TeleBot(TOKEN_TELEGRAM)
 logger: getLogger = get_logger(os.path.basename(__file__).replace(".py", "_") + str(datetime.now().date()))
 
 
 @bot.message_handler(commands=['start'])
-def start_bot(message):
-    first_mess = f"<b>{message.from_user.first_name} {message.from_user.last_name}</b>, " \
-                 f"привет!\nЗдесь представлены на выбор проверка сервисов."
-    markup = types.InlineKeyboardMarkup()
-    button_check_db = types.InlineKeyboardButton(text='Проверить подключение к базе данных', callback_data='check_db')
-    button_check_yandex = types.InlineKeyboardButton(text='Проверить баланс на Яндекс.Кошельке',
-                                                     callback_data='check_yandex')
-    button_check_dadata = types.InlineKeyboardButton(text='Получить оставшиеся количество запросов в Dadata',
-                                                     callback_data='check_dadata')
-    button_get_logs_docker = types.InlineKeyboardButton(text='Получить логи контейнеров',
-                                                        callback_data='get_logs_docker')
-    button_get_chat_id = types.InlineKeyboardButton(text='Получить Chat ID', callback_data='get_chat_id')
+def start_bot(message: Message) -> None:
+    first_mess: str = f"<b>{message.from_user.first_name} {message.from_user.last_name}</b>, " \
+                      f"привет!\nЗдесь представлены на выбор проверка сервисов."
+    markup: types.InlineKeyboardMarkup = types.InlineKeyboardMarkup()
+    button_check_db: types.InlineKeyboardButton = \
+        types.InlineKeyboardButton(text='Подключение к базе данных', callback_data='check_db')
+    button_check_yandex: types.InlineKeyboardButton = \
+        types.InlineKeyboardButton(text='Баланс на Яндекс.Кошельке', callback_data='check_yandex')
+    button_check_dadata: types.InlineKeyboardButton = \
+        types.InlineKeyboardButton(text='Оставшиеся количество запросов в Dadata', callback_data='check_dadata')
+    button_get_logs_docker: types.InlineKeyboardButton = \
+        types.InlineKeyboardButton(text='Логи контейнеров', callback_data='get_logs_docker')
+    button_get_chat_id: types.InlineKeyboardButton = \
+        types.InlineKeyboardButton(text='Chat ID', callback_data='get_chat_id')
+
     markup.row(button_check_db)
     markup.row(button_check_yandex)
     markup.row(button_check_dadata)
@@ -35,9 +41,9 @@ def start_bot(message):
 
 
 @bot.message_handler(commands=['check_connect_db'])
-def check_connect_db(message):
+def check_connect_db(message: Message) -> None:
     try:
-        response = requests.get(f"http://{IP_ADDRESS_DB}:8123", timeout=30)
+        response: Response = requests.get(f"http://{IP_ADDRESS_DB}:8123", timeout=30)
         response.raise_for_status()
         if "Ok" in response.text:
             bot.reply_to(message, "Подключение к базе стабильно")
@@ -49,7 +55,7 @@ def check_connect_db(message):
 
 
 @bot.message_handler(commands=['check_balance_xml_river'])
-def check_balance_xml_river(message):
+def check_balance_xml_river(message: Message) -> None:
     try:
         response: Response = requests.get(f"https://xmlriver.com/api/get_balance/yandex/"
                                           f"?user={USER_XML_RIVER}&key={KEY_XML_RIVER}", timeout=120)
@@ -61,7 +67,7 @@ def check_balance_xml_river(message):
 
 
 @bot.message_handler(commands=['check_num_requests_dadata'])
-def check_num_requests_dadata(message):
+def check_num_requests_dadata(message: Message) -> None:
     token_and_secrets: list = list(ACCOUNTS_SERVICE_INN.items())
     dict_statistics: dict = {}
     for index, token_and_secret in enumerate(token_and_secrets, 1):
@@ -76,34 +82,35 @@ def check_num_requests_dadata(message):
 
 
 @bot.message_handler(commands=['get_chat_id'])
-def get_chat_id(message):
-    chat_id = message.chat.id
+def get_chat_id(message: Message) -> None:
+    chat_id: int = message.chat.id
     bot.reply_to(message, f'Chat ID этого чата: {chat_id}')
 
 
 @bot.message_handler(commands=['get_logs_docker'])
-def get_logs_docker(message):
-    markup = types.InlineKeyboardMarkup()
+def get_logs_docker(message: Message) -> None:
+    markup: types.InlineKeyboardMarkup = types.InlineKeyboardMarkup()
     for container in [container.name for container in client.containers.list()]:
-        log_container = types.InlineKeyboardButton(container, callback_data=f'get_log_container_{container}')
+        log_container: types.InlineKeyboardButton = \
+            types.InlineKeyboardButton(container, callback_data=f'get_log_container_{container}')
         markup.add(log_container)
     bot.send_message(message.chat.id, 'Выберите контейнер для получения логов:', reply_markup=markup)
 
 
-def get_log_container(message, container_name):
-    logs = client.containers.get(container_name).logs()
-    lines = logs.decode('utf-8').split("\n")
-    last_lines = "\n".join(lines[-50:])
+def get_log_container(message: Message, container_name: str) -> None:
+    logs: bytes = client.containers.get(container_name).logs()
+    lines: list = logs.decode('utf-8').split("\n")
+    last_lines: str = "\n".join(lines[-50:])
     bot.reply_to(message, f'Логи контейнера {container_name}:\n{last_lines}')
 
 
 @bot.callback_query_handler(func=lambda call: True)
-def callback_handler(call):
+def callback_handler(call: types.CallbackQuery):
     if call.data.startswith('get_log_container'):
-        container_name = call.data[len('get_log_container_'):]
+        container_name: str = call.data[len('get_log_container_'):]
         get_log_container(call.message, container_name)
     else:
-        data_actions = {
+        data_actions: dict = {
             'check_db': check_connect_db,
             'check_yandex': check_balance_xml_river,
             'check_dadata': check_num_requests_dadata,
