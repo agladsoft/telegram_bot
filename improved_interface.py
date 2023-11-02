@@ -15,9 +15,10 @@ bot: telebot.TeleBot = telebot.TeleBot(TOKEN_TELEGRAM)
 logger: getLogger = get_logger(os.path.basename(__file__).replace(".py", "_") + str(datetime.now().date()))
 
 
-def start_method(message: Message, is_back: bool):
+def start_menu(message: Message, is_back: bool):
     first_mess: str = f"<b>{message.from_user.first_name} {message.from_user.last_name}</b>, " \
                       f"привет!\nЗдесь представлены на выбор проверка сервисов."
+
     markup: types.InlineKeyboardMarkup = types.InlineKeyboardMarkup()
     button_check_db: types.InlineKeyboardButton = \
         types.InlineKeyboardButton(text='Подключение к базе данных', callback_data='check_db')
@@ -44,7 +45,7 @@ def start_method(message: Message, is_back: bool):
 
 @bot.message_handler(commands=['start'])
 def start_bot(message: Message) -> None:
-    start_method(message, is_back=False)
+    start_menu(message, is_back=False)
 
 
 @bot.message_handler(commands=['check_connect_db'])
@@ -126,7 +127,7 @@ def callback_handler(call: types.CallbackQuery):
     elif call.data == 'close':
         bot.edit_message_text('Меню закрыто', call.message.chat.id, call.message.message_id)
     elif call.data == 'back':
-        start_method(call.message, is_back=True)
+        start_menu(call.message, is_back=True)
     else:
         data_actions: dict = {
             'check_db': check_connect_db,
