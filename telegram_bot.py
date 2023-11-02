@@ -91,10 +91,10 @@ class TelegramBotManager:
         :param container_name: Наименование контейнера.
         :return:
         """
-        logs: bytes = client.containers.get(container_name).logs()
+        logs: bytes = client.containers.get(container_name).logs(tail=10)
         lines: list = logs.decode('utf-8').split("\n")
-        last_lines: str = "\n".join(lines[-50:])
-        bot.send_message(message.chat.id, f'Логи контейнера {container_name}:\n{last_lines}')
+        last_lines: str = "\n".join(lines)
+        bot.reply_to(message, f'Логи контейнера {container_name}:\n{last_lines}')
 
 
 @bot.message_handler(commands=['start'])
