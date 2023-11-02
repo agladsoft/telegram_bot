@@ -124,10 +124,10 @@ def callback_worker(call: types.CallbackQuery) -> Optional[types.InlineKeyboardM
         markup: types.InlineKeyboardMarkup = types.InlineKeyboardMarkup()
         for container in [container.name for container in client.containers.list()]:
             markup.add(types.InlineKeyboardButton(container, callback_data=f'get_log_container_{container}'))
-        markup.add(types.InlineKeyboardButton('Закрыть меню', callback_data='close'))
+        markup.add(types.InlineKeyboardButton('Закрыть', callback_data='close'))
         return markup
     elif call.data == 'close':
-        bot.edit_message_text('Меню закрыто', call.message.chat.id, call.message.message_id)
+        bot.edit_message_text('Закрыто', call.message.chat.id, call.message.message_id)
     elif call.data.startswith('get_log_container'):
         TelegramBotManager.get_log_container(call.message, call.data[len('get_log_container_'):])
 

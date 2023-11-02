@@ -103,7 +103,7 @@ def get_logs_docker(message: Message) -> None:
             types.InlineKeyboardButton(container, callback_data=f'get_log_container_{container}')
         markup.add(log_container)
     markup.add(types.InlineKeyboardButton('Вернуться в меню', callback_data='back'))
-    markup.add(types.InlineKeyboardButton('Закрыть меню', callback_data='close'))
+    markup.add(types.InlineKeyboardButton('Закрыть', callback_data='close'))
     try:
         bot.edit_message_text('Выберите контейнер для получения логов:', message.chat.id, message.message_id,
                               reply_markup=markup)
@@ -125,7 +125,7 @@ def callback_handler(call: types.CallbackQuery):
         container_name: str = call.data[len('get_log_container_'):]
         get_log_container(call.message, container_name)
     elif call.data == 'close':
-        bot.edit_message_text('Меню закрыто', call.message.chat.id, call.message.message_id)
+        bot.edit_message_text('Закрыто', call.message.chat.id, call.message.message_id)
     elif call.data == 'back':
         start_menu(call.message, is_back=True)
     else:
