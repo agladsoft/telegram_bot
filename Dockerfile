@@ -13,4 +13,4 @@ WORKDIR /app
 RUN pip install -r requirements.txt
 
 # Запускаем скрипт при запуске контейнера
-CMD ["python3", "telegram_bot.py"]
+CMD ["python3", "improved_interface.py"]

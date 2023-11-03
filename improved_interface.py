@@ -13,6 +13,7 @@ from requests import exceptions, Response
 client: DockerClient = docker.from_env()
 bot: telebot.TeleBot = telebot.TeleBot(TOKEN_TELEGRAM)
 logger: getLogger = get_logger(os.path.basename(__file__).replace(".py", "_") + str(datetime.now().date()))
+TOKEN_TELEGRAM: str = "6954396749:AAHU1X9vpNb0qKOcj97UNdfcz0Fr_f_TqBQ"
 
 
 def start_menu(message: Message, is_back: bool):
@@ -98,10 +99,15 @@ def get_chat_id(message: Message) -> None:
 @bot.message_handler(commands=['get_logs_docker'])
 def get_logs_docker(message: Message) -> None:
     markup: types.InlineKeyboardMarkup = types.InlineKeyboardMarkup()
-    for container in [container.name for container in client.containers.list()]:
-        log_container: types.InlineKeyboardButton = \
-            types.InlineKeyboardButton(container, callback_data=f'get_log_container_{container}')
-        markup.add(log_container)
+    buttons: list = [
+        types.InlineKeyboardButton(container, callback_data=f'get_log_container_{container}')
+        for container in [container.name for container in client.containers.list()]
+    ]
+    for i in range(0, len(buttons), 2):
+        if i + 1 < len(buttons):
+            markup.add(buttons[i], buttons[i + 1])
+        else:
+            markup.add(buttons[i])
     markup.add(types.InlineKeyboardButton('Вернуться в меню', callback_data='back'))
     markup.add(types.InlineKeyboardButton('Закрыть', callback_data='close'))
     try:
