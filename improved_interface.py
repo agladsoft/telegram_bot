@@ -10,10 +10,10 @@ from dadata.sync import DadataClient
 from requests import exceptions, Response
 
 
+TOKEN_TELEGRAM: str = "6954396749:AAHU1X9vpNb0qKOcj97UNdfcz0Fr_f_TqBQ"
 client: DockerClient = docker.from_env()
 bot: telebot.TeleBot = telebot.TeleBot(TOKEN_TELEGRAM)
 logger: getLogger = get_logger(os.path.basename(__file__).replace(".py", "_") + str(datetime.now().date()))
-TOKEN_TELEGRAM: str = "6954396749:AAHU1X9vpNb0qKOcj97UNdfcz0Fr_f_TqBQ"
 
 
 def start_menu(message: Message, is_back: bool):
