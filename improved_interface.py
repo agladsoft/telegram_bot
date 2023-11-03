@@ -101,7 +101,7 @@ def get_logs_docker(message: Message) -> None:
     markup: types.InlineKeyboardMarkup = types.InlineKeyboardMarkup()
     buttons: list = [
         types.InlineKeyboardButton(container, callback_data=f'get_log_container_{container}')
-        for container in [container.name for container in client.containers.list()]
+        for container in sorted([container.name for container in client.containers.list()])
     ]
     for i in range(0, len(buttons), 2):
         if i + 1 < len(buttons):
