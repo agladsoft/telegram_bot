@@ -92,7 +92,7 @@ def check_num_requests_dadata(message: Message) -> None:
         dict_statistics[f"ACCOUNT_NUMBER_{index}"] = dadata.get_daily_stats(datetime.now().date())
     message_response: str = ''.join(
         f'Количество оставшиеся запросов за {data["date"]} на аккаунте {account} составляет '
-        f'{data["remaining"]["suggestions"]}\n'
+        f'{data["remaining"]["suggestions"]}\n\n'
         for account, data in dict_statistics.items()
     )
     bot.reply_to(message, message_response)
