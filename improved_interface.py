@@ -31,10 +31,12 @@ def start_menu(message: Message, is_back: bool):
         types.InlineKeyboardButton(text='📊 Оставшиеся количество запросов в Dadata', callback_data='check_dadata')
     button_get_logs_docker: types.InlineKeyboardButton = \
         types.InlineKeyboardButton(text='🐳 Логи контейнеров', callback_data='get_logs_docker')
-    button_get_ram_memory: types.InlineKeyboardButton = \
-        types.InlineKeyboardButton(text='🖥️ Оперативная память', callback_data='get_ram_memory')
-    button_get_rom_memory: types.InlineKeyboardButton = \
-        types.InlineKeyboardButton(text='💾 Внутренняя память', callback_data='get_rom_memory')
+    # button_get_ram_memory: types.InlineKeyboardButton = \
+    #     types.InlineKeyboardButton(text='🖥️ Оперативная память', callback_data='get_ram_memory')
+    # button_get_rom_memory: types.InlineKeyboardButton = \
+    #     types.InlineKeyboardButton(text='💾 Внутренняя память', callback_data='get_rom_memory')
+    button_get_statistics_computer: types.InlineKeyboardButton = \
+        types.InlineKeyboardButton(text='🖥️ Статистика компьютера', callback_data='get_statistics_computer')
     button_get_chat_id: types.InlineKeyboardButton = \
         types.InlineKeyboardButton(text='🆔 Chat ID', callback_data='get_chat_id')
 
@@ -42,8 +44,9 @@ def start_menu(message: Message, is_back: bool):
     markup.row(button_check_yandex)
     markup.row(button_check_dadata)
     markup.row(button_get_logs_docker)
-    markup.row(button_get_ram_memory)
-    markup.row(button_get_rom_memory)
+    # markup.row(button_get_ram_memory)
+    # markup.row(button_get_rom_memory)
+    markup.row(button_get_statistics_computer)
     markup.row(button_get_chat_id)
 
     if is_back:
@@ -126,6 +129,19 @@ def get_logs_docker(message: Message) -> None:
                          reply_markup=markup)
 
 
+@bot.message_handler(commands=['get_memory'])
+def get_statistics_computer(message: Message) -> None:
+    markup: types.InlineKeyboardMarkup = types.InlineKeyboardMarkup()
+    markup.add(types.InlineKeyboardButton("🖥️ Оперативная память", callback_data='get_ram_memory'))
+    markup.add(types.InlineKeyboardButton("🖥️ Внутренняя память", callback_data='get_rom_memory'))
+    markup.add(types.InlineKeyboardButton('⏪ Назад', callback_data='back'))
+    markup.add(types.InlineKeyboardButton('❌ Закрыть', callback_data='close'))
+    try:
+        bot.edit_message_text('Выберите действие:', message.chat.id, message.message_id, reply_markup=markup)
+    except telebot.apihelper.ApiTelegramException:
+        bot.send_message(message.chat.id, 'Выберите действие:', parse_mode='html', reply_markup=markup)
+
+
 @bot.message_handler(commands=['get_ram_memory'])
 def get_ram_memory(message: Message) -> None:
     bot.reply_to(message, f'Занято оперативной памяти(%):\n{psutil.virtual_memory().percent}\n\n'
@@ -162,6 +178,9 @@ def callback_handler(call: types.CallbackQuery):
             'get_logs_docker': get_logs_docker,
             'get_ram_memory': get_ram_memory,
             'get_rom_memory': get_rom_memory,
+            # 'back': start_menu(call.message, is_back=True),
+            # 'close': bot.edit_message_text('Закрыто', call.message.chat.id, call.message.message_id),
+            'get_statistics_computer': get_statistics_computer,
             'get_chat_id': get_chat_id
         }
         if call.data in data_actions:
