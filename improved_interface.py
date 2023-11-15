@@ -134,7 +134,6 @@ def get_statistics_computer(message: Message) -> None:
     markup.add(types.InlineKeyboardButton("🖥️ Оперативная память", callback_data='get_ram_memory'))
     markup.add(types.InlineKeyboardButton("🖥️ Внутренняя память", callback_data='get_rom_memory'))
     markup.add(types.InlineKeyboardButton('⏪ Назад', callback_data='back'))
-    markup.add(types.InlineKeyboardButton('❌ Закрыть', callback_data='close'))
     try:
         bot.edit_message_text('Выберите действие:', message.chat.id, message.message_id, reply_markup=markup)
     except telebot.apihelper.ApiTelegramException:
