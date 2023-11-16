@@ -133,7 +133,7 @@ def get_statistics_computer(message: Message) -> None:
     markup: types.InlineKeyboardMarkup = types.InlineKeyboardMarkup()
     markup.add(types.InlineKeyboardButton("🖥️ Оперативная память", callback_data='get_ram_memory'))
     markup.add(types.InlineKeyboardButton("🖥️ Внутренняя память", callback_data='get_rom_memory'))
-    markup.add(types.InlineKeyboardButton("🖥️ CPU", callback_data='get_cpu'))
+    markup.add(types.InlineKeyboardButton("🖥️ Центральный процессор", callback_data='get_cpu'))
     markup.add(types.InlineKeyboardButton('⏪ Назад', callback_data='back'))
     try:
         bot.edit_message_text('Выберите действие:', message.chat.id, message.message_id, reply_markup=markup)
@@ -155,7 +155,7 @@ def get_rom_memory(message: Message) -> None:
 
 @bot.message_handler(commands=['get_cpu'])
 def get_cpu(message: Message) -> None:
-    bot.reply_to(message, f'Занято cpu(%):\n{psutil.cpu_percent()}')
+    bot.reply_to(message, f'Занято CPU(%):\n{psutil.cpu_percent()}')
 
 
 def get_log_container(message: Message, container_name: str) -> None:
