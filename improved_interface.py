@@ -133,6 +133,7 @@ def get_statistics_computer(message: Message) -> None:
     markup: types.InlineKeyboardMarkup = types.InlineKeyboardMarkup()
     markup.add(types.InlineKeyboardButton("🖥️ Оперативная память", callback_data='get_ram_memory'))
     markup.add(types.InlineKeyboardButton("🖥️ Внутренняя память", callback_data='get_rom_memory'))
+    markup.add(types.InlineKeyboardButton("🖥️ CPU", callback_data='get_cpu'))
     markup.add(types.InlineKeyboardButton('⏪ Назад', callback_data='back'))
     try:
         bot.edit_message_text('Выберите действие:', message.chat.id, message.message_id, reply_markup=markup)
@@ -150,6 +151,11 @@ def get_ram_memory(message: Message) -> None:
 def get_rom_memory(message: Message) -> None:
     bot.reply_to(message, f'Занято внутренней памяти(%):\n{psutil.disk_usage("/").percent}\n\n'
                           f'Занято внутренней памяти(GB):\n{bytes2human(psutil.disk_usage("/").used)}')
+
+
+@bot.message_handler(commands=['get_cpu'])
+def get_cpu(message: Message) -> None:
+    bot.reply_to(message, f'Занято cpu(%):\n{psutil.cpu_percent()}')
 
 
 def get_log_container(message: Message, container_name: str) -> None:
@@ -174,6 +180,7 @@ def callback_handler(call: types.CallbackQuery):
             'get_logs_docker': get_logs_docker,
             'get_ram_memory': get_ram_memory,
             'get_rom_memory': get_rom_memory,
+            'get_cpu': get_cpu,
             # 'back': start_menu(call.message, is_back=True),
             # 'close': bot.edit_message_text('Закрыто', call.message.chat.id, call.message.message_id),
             'get_statistics_computer': get_statistics_computer,
