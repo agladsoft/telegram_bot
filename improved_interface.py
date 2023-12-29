@@ -31,10 +31,6 @@ def start_menu(message: Message, is_back: bool):
         types.InlineKeyboardButton(text='📊 Оставшиеся количество запросов в Dadata', callback_data='check_dadata')
     button_get_logs_docker: types.InlineKeyboardButton = \
         types.InlineKeyboardButton(text='🐳 Логи контейнеров', callback_data='get_logs_docker')
-    # button_get_ram_memory: types.InlineKeyboardButton = \
-    #     types.InlineKeyboardButton(text='🖥️ Оперативная память', callback_data='get_ram_memory')
-    # button_get_rom_memory: types.InlineKeyboardButton = \
-    #     types.InlineKeyboardButton(text='💾 Внутренняя память', callback_data='get_rom_memory')
     button_get_statistics_computer: types.InlineKeyboardButton = \
         types.InlineKeyboardButton(text='🖥️ Статистика компьютера', callback_data='get_statistics_computer')
     button_get_chat_id: types.InlineKeyboardButton = \
