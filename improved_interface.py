@@ -40,7 +40,7 @@ def start_menu(message: Message, is_back: bool):
     markup.row(button_check_yandex)
     markup.row(button_check_dadata)
     markup.row(button_get_statistics_computer)
-    if f"{message.from_user.first_name} {message.from_user.last_name}" in ["Тимур Завьялов", "Евгений"]:
+    if message.from_user.username in ["timurzav", "uventus8"]:
         markup.row(button_get_logs_docker)
         markup.row(button_get_chat_id)
 
