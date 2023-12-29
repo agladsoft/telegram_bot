@@ -1,3 +1,4 @@
+import math
 import psutil
 import docker
 import telebot
@@ -76,10 +77,17 @@ def check_connect_db(message: Message) -> None:
 @bot.message_handler(commands=['check_balance_xml_river'])
 def check_balance_xml_river(message: Message) -> None:
     try:
-        response: Response = requests.get(f"https://xmlriver.com/api/get_balance/yandex/"
-                                          f"?user={USER_XML_RIVER}&key={KEY_XML_RIVER}", timeout=120)
-        response.raise_for_status()
-        bot.reply_to(message, f"Баланс на Яндекс.Кошельке составляет {float(response.text)} рублей")
+        response_balance: Response = requests.get(f"https://xmlriver.com/api/get_balance/yandex/"
+                                                  f"?user={USER_XML_RIVER}&key={KEY_XML_RIVER}", timeout=120)
+        response_cost: Response = requests.get(f"https://xmlriver.com/api/get_cost/yandex/"
+                                               f"?user={USER_XML_RIVER}&key={KEY_XML_RIVER}", timeout=120)
+        response_balance.raise_for_status()
+        response_cost.raise_for_status()
+
+        count_ability_handle_rows = math.floor(float(response_balance.text) / (float(response_cost.text) / 1000))
+        bot.reply_to(message, f"Баланс на Яндекс.Кошельке составляет {response_balance.text} рублей. "
+                              f"Стоимость одного запроса составляет {response_cost.text} копеек. "
+                              f"Этих денег хватит на обработку {count_ability_handle_rows} строк")
     except exceptions.RequestException as e:
         logger.error(f"Во время запроса API произошла ошибка - {e}")
         bot.reply_to(message, 'Не удалось получить ответ от Яндекс.Кошелька')
@@ -180,8 +188,6 @@ def callback_handler(call: types.CallbackQuery):
             'get_ram_memory': get_ram_memory,
             'get_rom_memory': get_rom_memory,
             'get_cpu': get_cpu,
-            # 'back': start_menu(call.message, is_back=True),
-            # 'close': bot.edit_message_text('Закрыто', call.message.chat.id, call.message.message_id),
             'get_statistics_computer': get_statistics_computer,
             'get_chat_id': get_chat_id
         }
