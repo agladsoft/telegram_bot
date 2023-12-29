@@ -39,11 +39,10 @@ def start_menu(message: Message, is_back: bool):
     markup.row(button_check_db)
     markup.row(button_check_yandex)
     markup.row(button_check_dadata)
-    markup.row(button_get_logs_docker)
-    # markup.row(button_get_ram_memory)
-    # markup.row(button_get_rom_memory)
     markup.row(button_get_statistics_computer)
-    markup.row(button_get_chat_id)
+    if f"{message.from_user.first_name} {message.from_user.last_name}" in ["Тимур Завьялов", "Евгений"]:
+        markup.row(button_get_logs_docker)
+        markup.row(button_get_chat_id)
 
     if is_back:
         bot.edit_message_text('Вы вернулись в меню', message.chat.id, message.message_id, reply_markup=markup)
