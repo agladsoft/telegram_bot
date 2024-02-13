@@ -81,7 +81,7 @@ def check_balance_xml_river(message: Message) -> None:
 
         count_ability_handle_rows = math.floor(float(response_balance.text) / (float(response_cost.text) / 1000))
         bot.reply_to(message, f"Баланс на Яндекс.Кошельке составляет {response_balance.text} рублей. "
-                              f"Стоимость одного запроса составляет {round(float(response_cost.text) // 10)} копеек. "
+                              f"Стоимость одного запроса составляет {round(float(response_cost.text) // 10)} копейки. "
                               f"Этих денег хватит на обработку {count_ability_handle_rows} строк")
     except exceptions.RequestException as e:
         logger.error(f"Во время запроса API произошла ошибка - {e}")
