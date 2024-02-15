@@ -12,7 +12,6 @@ from dadata.sync import DadataClient
 from psutil._common import bytes2human
 from requests import exceptions, Response
 
-
 client: DockerClient = docker.from_env()
 bot: telebot.TeleBot = telebot.TeleBot(TOKEN_TELEGRAM)
 logger: getLogger = get_logger(os.path.basename(__file__).replace(".py", "_") + str(datetime.now().date()))
@@ -35,11 +34,14 @@ def start_menu(message: Message, is_back: bool):
         types.InlineKeyboardButton(text='🖥️ Статистика компьютера', callback_data='get_statistics_computer')
     button_get_chat_id: types.InlineKeyboardButton = \
         types.InlineKeyboardButton(text='🆔 Chat ID', callback_data='get_chat_id')
+    button_get_count_company: types.InlineKeyboardButton = \
+        types.InlineKeyboardButton(text='Уни название', callback_data='count_company')
 
     markup.row(button_check_db)
     markup.row(button_check_yandex)
     markup.row(button_check_dadata)
     markup.row(button_get_statistics_computer)
+    markup.row(button_get_count_company)
     if message.from_user.username in ["timurzav", "uventus8"]:
         markup.row(button_get_logs_docker)
         markup.row(button_get_chat_id)
@@ -188,6 +190,34 @@ def callback_handler(call: types.CallbackQuery):
         }
         if call.data in data_actions:
             data_actions[call.data](call.message)
+
+
+def connect_to_db():
+    # sourcery skip: use-dictionary-union
+    """
+    Connecting to clickhouse.
+    :return: Client ClickHouse.
+    """
+    try:
+        client: Client = get_client(host=get_my_env_var('HOST'), database=get_my_env_var('DATABASE'),
+                                    username=get_my_env_var('USERNAME_DB'), password=get_my_env_var('PASSWORD'))
+        uni: QueryResult = client.query(
+            "select count(company_name) "
+            "from (select company_name_unified ,company_inn , company_name, count(DISTINCT company_inn)"
+            " over (partition by company_name_unified)"
+            "as inn_count from reference_inn"
+            " where is_fts_found = false) where inn_count > 1"
+            " and company_inn is not null and company_name_unified is not null")
+        print(uni.result_rows[0])
+    except Exception as ex_connect:
+        return 'Нет подключения к базе данных'
+    return uni.result_rows[0]
+
+
+@bot.message_handler(commands=['count_company'])
+def check_num_requests_dadata(message: Message) -> None:
+    message_response: str = str(connect_to_db())
+    bot.reply_to(message, message_response)
 
 
 if __name__ == "__main__":
