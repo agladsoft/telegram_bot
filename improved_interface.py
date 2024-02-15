@@ -35,7 +35,8 @@ def start_menu(message: Message, is_back: bool):
     button_get_chat_id: types.InlineKeyboardButton = \
         types.InlineKeyboardButton(text='🆔 Chat ID', callback_data='get_chat_id')
     button_uni_company: types.InlineKeyboardButton = \
-        types.InlineKeyboardButton(text='Уни название', callback_data='uni_company')
+        types.InlineKeyboardButton(text='🛢️ Кол-во компаний, где 1 уни название для нескольких ИНН',
+                                   callback_data='uni_company')
 
     markup.row(button_check_db)
     markup.row(button_check_yandex)
@@ -200,19 +201,21 @@ def connect_to_db():
     :return: Client ClickHouse.
     """
     try:
-        client: Client = get_client(host=get_my_env_var('HOST'), database=get_my_env_var('DATABASE'),
-                                    username=get_my_env_var('USERNAME_DB'), password=get_my_env_var('PASSWORD'))
-        uni: QueryResult = client.query(
-            "select count(company_name) "
-            "from (select company_name_unified ,company_inn , company_name, count(DISTINCT company_inn)"
-            " over (partition by company_name_unified)"
-            "as inn_count from reference_inn"
-            " where is_fts_found = false) where inn_count > 1"
-            " and company_inn is not null and company_name_unified is not null")
-        print(uni.result_rows[0])
+        client_db: Client = get_client(host=get_my_env_var('HOST'), database=get_my_env_var('DATABASE'),
+                                       username=get_my_env_var('USERNAME_DB'), password=get_my_env_var('PASSWORD'))
+        uni: QueryResult = client_db.query(
+            "SELECT COUNT(company_name) "
+            "FROM (SELECT company_name_unified ,company_inn , company_name, COUNT(DISTINCT company_inn) "
+            "OVER (PARTITION BY company_name_unified)"
+            "AS inn_count from reference_inn "
+            "WHERE is_fts_found = FALSE) WHERE inn_count > 1 "
+            "AND company_inn IS NOT NULL AND company_name_unified IS NOT NULL"
+        )
+        print(uni.result_rows[0][0])
     except Exception as ex_connect:
+        print(ex_connect)
         return 'Нет подключения к базе данных'
-    return uni.result_rows[0]
+    return uni.result_rows[0][0]
 
 
 @bot.message_handler(commands=['uni_company'])
