@@ -186,7 +186,8 @@ def callback_handler(call: types.CallbackQuery):
             'get_rom_memory': get_rom_memory,
             'get_cpu': get_cpu,
             'get_statistics_computer': get_statistics_computer,
-            'get_chat_id': get_chat_id
+            'get_chat_id': get_chat_id,
+            'uni_company': uni_company
         }
         if call.data in data_actions:
             data_actions[call.data](call.message)
