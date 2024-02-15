@@ -34,14 +34,14 @@ def start_menu(message: Message, is_back: bool):
         types.InlineKeyboardButton(text='🖥️ Статистика компьютера', callback_data='get_statistics_computer')
     button_get_chat_id: types.InlineKeyboardButton = \
         types.InlineKeyboardButton(text='🆔 Chat ID', callback_data='get_chat_id')
-    button_get_count_company: types.InlineKeyboardButton = \
-        types.InlineKeyboardButton(text='Уни название', callback_data='count_company')
+    button_uni_company: types.InlineKeyboardButton = \
+        types.InlineKeyboardButton(text='Уни название', callback_data='uni_company')
 
     markup.row(button_check_db)
     markup.row(button_check_yandex)
     markup.row(button_check_dadata)
     markup.row(button_get_statistics_computer)
-    markup.row(button_get_count_company)
+    markup.row(button_uni_company)
     if message.from_user.username in ["timurzav", "uventus8"]:
         markup.row(button_get_logs_docker)
         markup.row(button_get_chat_id)
@@ -214,8 +214,8 @@ def connect_to_db():
     return uni.result_rows[0]
 
 
-@bot.message_handler(commands=['count_company'])
-def check_num_requests_dadata(message: Message) -> None:
+@bot.message_handler(commands=['uni_company'])
+def uni_company(message: Message) -> None:
     message_response: str = str(connect_to_db())
     bot.reply_to(message, message_response)
 
