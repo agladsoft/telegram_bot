@@ -1,6 +1,8 @@
 import os
+from dotenv import load_dotenv
 from logging import FileHandler, Formatter, INFO, getLogger
 
+load_dotenv()
 # telegram
 TOKEN_TELEGRAM: str = "6557326533:AAHy6ls9LhTVTGztix8PUSK7BUSaHVEojXc"
 
@@ -20,6 +22,14 @@ ACCOUNTS_SERVICE_INN: dict = {
 # logging
 LOG_FTM: str = "[%(asctime)s] %(levelname)s [%(name)s.%(funcName)s:%(lineno)d] %(message)s"
 DATE_FTM: str = "%d/%B/%Y %H:%M:%S"
+
+
+BUTTONS_TELEGRAM_BOT: dict = {
+    "Подключение к базе данных": "check_connect_db",
+    "Баланс на Яндекс.Кошельке": "check_balance_xml_river",
+    "Доступное количество запросов в Dadata": "check_num_requests_dadata",
+    "Логи контейнеров": "check_logs_containers",
+}
 
 
 def get_my_env_var(var_name: str) -> str:
