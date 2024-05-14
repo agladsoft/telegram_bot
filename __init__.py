@@ -1,9 +1,5 @@
 import os
-import sys
 from dotenv import load_dotenv
-from clickhouse_connect import get_client
-from clickhouse_connect.driver import Client
-from clickhouse_connect.driver.query import QueryResult
 from logging import FileHandler, Formatter, INFO, getLogger
 
 load_dotenv()

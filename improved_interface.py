@@ -11,6 +11,10 @@ from telebot.types import Message
 from dadata.sync import DadataClient
 from psutil._common import bytes2human
 from requests import exceptions, Response
+from clickhouse_connect import get_client
+from clickhouse_connect.driver import Client
+from clickhouse_connect.driver.query import QueryResult
+
 
 client: DockerClient = docker.from_env()
 bot: telebot.TeleBot = telebot.TeleBot(TOKEN_TELEGRAM)
