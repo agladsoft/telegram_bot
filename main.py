@@ -17,7 +17,7 @@ from clickhouse_connect.driver.query import QueryResult
 
 
 client: DockerClient = docker.from_env()
-bot: telebot.TeleBot = telebot.TeleBot(TOKEN_TELEGRAM)
+bot: telebot.TeleBot = telebot.TeleBot(os.environ["TOKEN"])
 logger: getLogger = get_logger(os.path.basename(__file__).replace(".py", "_") + str(datetime.now().date()))
 
 
