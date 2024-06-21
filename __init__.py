@@ -4,7 +4,7 @@ from logging import FileHandler, Formatter, INFO, getLogger
 
 load_dotenv()
 # telegram
-TOKEN_TELEGRAM: str = "6557326533:AAG245-MJogKOv2jw5ExjdciEaHMWbuI388"
+TOKEN_TELEGRAM: str = "6557326533:AAGcYU6q0DFLJfjZMHTaDjLnf-PzRMzA-6M"
 
 # database
 IP_ADDRESS_DB: str = "10.23.4.196"
