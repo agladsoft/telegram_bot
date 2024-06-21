@@ -5,6 +5,8 @@ services:
     restart: always
     ports:
       - "3003:3003"
+    environment:
+      TOKEN: ${TOKEN}
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     build:
