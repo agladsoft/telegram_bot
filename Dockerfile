@@ -1,5 +1,8 @@
 FROM python:3.8
 
+# Копируем .env
+COPY .env /app/
+
 # Копируем python-файлы
 COPY *.py /app/
 
