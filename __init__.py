@@ -48,8 +48,8 @@ def get_file_handler(name: str) -> FileHandler:
 
 def get_stream_handler() -> StreamHandler:
     stream_handler: StreamHandler = StreamHandler()
-    stream_handler.setLevel(logging.INFO)
-    stream_handler.setFormatter(logging.Formatter(LOG_FTM))
+    stream_handler.setLevel(INFO)
+    stream_handler.setFormatter(Formatter(LOG_FTM))
     return stream_handler
 
 

@@ -1,4 +1,3 @@
-import logging
 import math
 import psutil
 import docker
