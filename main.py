@@ -1,3 +1,4 @@
+import logging
 import math
 import psutil
 import docker
@@ -229,4 +230,4 @@ def uni_company(message: Message) -> None:
 
 
 if __name__ == "__main__":
-    bot.infinity_polling()
+    bot.infinity_polling(logger_level=logging.INFO)
