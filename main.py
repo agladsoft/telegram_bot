@@ -215,9 +215,9 @@ def connect_to_db():
             "WHERE is_fts_found = FALSE) WHERE inn_count > 1 "
             "AND company_inn IS NOT NULL AND company_name_unified IS NOT NULL"
         )
-        print(uni.result_rows[0][0])
+        logger.info(uni.result_rows[0][0])
     except Exception as ex_connect:
-        print(ex_connect)
+        logger.info(ex_connect)
         return 'Нет подключения к базе данных'
     return uni.result_rows[0][0]
 
