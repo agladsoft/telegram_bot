@@ -217,7 +217,7 @@ def connect_to_db():
         )
         logger.info(uni.result_rows[0][0])
     except Exception as ex_connect:
-        logger.info(ex_connect)
+        logger.error(ex_connect)
         return 'Нет подключения к базе данных'
     return uni.result_rows[0][0]
 
