@@ -1,6 +1,6 @@
 import os
 from dotenv import load_dotenv
-from logging import FileHandler, Formatter, INFO, getLogger
+from logging import FileHandler, StreamHandler, Formatter, INFO, getLogger
 
 load_dotenv()
 
@@ -46,11 +46,19 @@ def get_file_handler(name: str) -> FileHandler:
     return file_handler
 
 
+def get_stream_handler() -> StreamHandler:
+    stream_handler: StreamHandler = StreamHandler()
+    stream_handler.setLevel(logging.INFO)
+    stream_handler.setFormatter(logging.Formatter(LOG_FTM))
+    return stream_handler
+
+
 def get_logger(name: str) -> getLogger:
     logger: getLogger = getLogger(name)
     if logger.hasHandlers():
         logger.handlers.clear()
     logger.addHandler(get_file_handler(name))
+    logger.addHandler(get_stream_handler())
     logger.setLevel(INFO)
     return logger
 
